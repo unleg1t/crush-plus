@@ -80,10 +80,51 @@ func TestPresetsAreWellFormed(t *testing.T) {
 				require.NotContains(t, ids, m.ID, "duplicate seed model %q", m.ID)
 				ids[m.ID] = struct{}{}
 				require.NotEmpty(t, m.Name, "seed model needs a display name")
-				require.Positive(t, m.ContextWindow, "seed model needs a context window")
+				// A seed permanently wins over discovery, so a limit that
+				// is written here is never corrected by a later probe.
+				// Presets that opt out of limits must therefore not
+				// smuggle a guess in alongside the opt-out.
+				if p.NoPublishedLimits {
+					require.Zero(t, m.ContextWindow,
+						"preset %q declares no published limits, so seed %q must not carry one",
+						p.ID, m.ID)
+				} else {
+					require.Positive(t, m.ContextWindow, "seed model needs a context window")
+				}
 			}
 		})
 	}
+}
+
+// TestLogfareLeadsWithAModelThatNeedsNoOptIn guards the ordering of the
+// Logfare seeds. A custom provider's default model is the first entry in
+// its list, and Logfare's /models response leads with a tier-2 model that
+// a plain API key is refused. Applying the preset with no `model large`
+// line must therefore not land on a model that 403s.
+func TestLogfareLeadsWithAModelThatNeedsNoOptIn(t *testing.T) {
+	t.Parallel()
+
+	p, ok := Lookup("logfare")
+	require.True(t, ok)
+	require.NotEmpty(t, p.Models, "logfare must seed models to control the default")
+
+	// The three entries below are the only chat models Logfare serves
+	// without the training opt-in, verified against /v1/models.
+	want := []string{"logfare/auto", "step-3.7-flash", "gemma-4-26b"}
+	got := make([]string, 0, len(p.Models))
+	for _, m := range p.Models {
+		got = append(got, m.ID)
+	}
+	require.Equal(t, want, got, "logfare seeds must be exactly the no-opt-in chat models, in default-first order")
+
+	require.Contains(t, p.Note, "consent", "the note must point at the opt-in that unlocks the rest")
+
+	// Discovery is not optional once seeds exist. A custom provider only
+	// auto-discovers while it has zero models, so seeding without asking
+	// for discovery would hide the other 36 entries — including every
+	// model the opt-in unlocks.
+	require.NotNil(t, p.DiscoverModels, "logfare must set discover_models explicitly")
+	require.True(t, *p.DiscoverModels, "logfare seeds require discovery to reach the rest of the catalog")
 }
 
 func TestLookupByIDAndAlias(t *testing.T) {

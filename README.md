@@ -230,7 +230,7 @@ That said, you can also set environment variables for preferred providers:
 | `AZURE_OPENAI_API_VERSION`  | Azure OpenAI models                                |
 | `MOONSHOT_API_KEY`          | Moonshot                                           |
 | `POLLINATIONS_API_KEY`      | Pollinations preset (free tier)                    |
-| `LOGFARE_API_KEY`           | Logfare preset (free, trains on requests)          |
+| `LOGFARE_API_KEY`           | Logfare preset (free; frontier models need opt-in) |
 | `CRAX_API_KEY`              | crax-gpt preset (free, hobby service)              |
 | `NVIDIA_API_KEY`            | NVIDIA NIM preset (free tier)                      |
 | `GITHUB_TOKEN`              | GitHub Models preset (PAT with `models:read`)      |

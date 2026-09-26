@@ -85,6 +85,13 @@ type Preset struct {
 	Note string
 	// Models are seeded onto the provider.
 	Models []Model
+	// NoPublishedLimits records that the provider's model list carries no
+	// context limits at all, so seeds under it deliberately omit
+	// ContextWindow. A seeded entry permanently wins over discovery, so a
+	// guessed limit would never be corrected by a later probe; leaving it
+	// unset is the honest option and matches what discovery returns for
+	// these providers anyway.
+	NoPublishedLimits bool
 }
 
 // Config renders the preset as provider config keys — the same shape
@@ -180,6 +187,25 @@ var craxModels = []Model{
 	{ID: "gemma-3-12b", Name: "Gemma 3 12B", ContextWindow: 131_072, SupportsImages: true},
 }
 
+// logfareModels seeds only the chat models that work without a training
+// opt-in. Logfare gates its frontier models behind a consent step at
+// /consent, and the tier-1 entries below are the ones that answer for a
+// plain API key. Seeding them also makes them sort first, which matters
+// because a custom provider's default model is the first entry in the
+// list — without this the default lands on a premium model and every
+// request fails with a 403 until the user opts in.
+//
+// Context windows are deliberately left unset: Logfare's /models response
+// carries no limits, and a seeded entry permanently wins over discovery,
+// so any number written here would be a guess that never gets corrected.
+// The seeded models are no worse off than the ones discovery returns,
+// which come back with bare IDs and no limits either.
+var logfareModels = []Model{
+	{ID: "logfare/auto", Name: "Logfare Auto"},
+	{ID: "step-3.7-flash", Name: "Step 3.7 Flash"},
+	{ID: "gemma-4-26b", Name: "Gemma 4 26B"},
+}
+
 // presets is the catalog. It holds endpoints Crush does not ship in the
 // catwalk catalog: keyless services, community proxies, and free tiers.
 //
@@ -214,15 +240,18 @@ var presets = []Preset{
 		Note:           "Free with a GitHub PAT that has models:read. GitHub serves no OpenAI-shaped model list, so register what you want with `model add`.",
 	},
 	{
-		ID:        "logfare",
-		Name:      "Logfare",
-		Aliases:   []string{"logfare.ai"},
-		Type:      "openai-compat",
-		BaseURL:   "https://logfare.ai/v1",
-		APIKeyEnv: "LOGFARE_API_KEY",
-		FlatRate:  true,
-		HomeURL:   "https://logfare.ai/register",
-		Note:      "Free key, no rate limit, frontier models. Most of its models are flagged to train on your requests — do not send code you would not share.",
+		ID:                "logfare",
+		Name:              "Logfare",
+		Aliases:           []string{"logfare.ai"},
+		Type:              "openai-compat",
+		BaseURL:           "https://logfare.ai/v1",
+		APIKeyEnv:         "LOGFARE_API_KEY",
+		DiscoverModels:    Bool(true),
+		FlatRate:          true,
+		HomeURL:           "https://logfare.ai/register",
+		NoPublishedLimits: true,
+		Note:              "Free key, no rate limit. Only three chat models (auto, step-3.7-flash, gemma-4-26b) work without opting in; the frontier models need the training opt-in at logfare.ai/consent, which lets Logfare train on your requests.",
+		Models:            logfareModels,
 	},
 	{
 		ID:        "nvidia",

@@ -230,6 +230,26 @@ provider preset pollinations --base-url "http://localhost:8080/v1"
 > codebase. The free tiers from established companies (Groq, Cerebras,
 > Chutes) ship in Crush's normal provider list and are a safer default.
 
+Some presets also gate part of their catalog behind an account-level
+agreement. Logfare is the clearest case: only `logfare/auto`,
+`step-3.7-flash`, and `gemma-4-26b` answer for a plain API key, and the
+frontier models return HTTP 403 until you accept the training opt-in at
+[logfare.ai/consent](https://logfare.ai/consent). The preset seeds the
+unlocked models first so the default selection works immediately, and
+discovery still fills in the rest for after you opt in.
+
+> [!TIP]
+> `model large` in a config file is a *default*, not a pin. The model you
+> last picked in the TUI is remembered in the data directory
+> (`~/.local/share/crush/crush.json`) and takes precedence over every
+> config file, so editing `model large` after Crush has run once appears to
+> do nothing. Clear the remembered choice to make a config file win:
+>
+> ```bash
+> crush models >/dev/null   # then pick the model in the TUI, or
+> rm ~/.local/share/crush/crush.json  # forget all remembered choices
+> ```
+
 #### `provider remove`
 
 Remove a provider and all custom models registered on it.
