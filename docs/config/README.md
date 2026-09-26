@@ -135,6 +135,7 @@ Usage:
 
 Available Commands:
   add       Add or update a provider
+  preset    Apply a ready-made provider preset, or list them
   remove    Remove a provider and its custom models
   rm        Alias for remove
 ```
@@ -178,6 +179,56 @@ provider add openai \
 ```
 
 If `OPENAI_ORG_ID` is unset, the header is simply not sent.
+
+#### `provider preset`
+
+Apply a ready-made provider from Crush's built-in catalog, or list the
+catalog. Presets cover the endpoints Crush's own provider list does not:
+keyless services, hobby proxies, and free tiers.
+
+```text
+Usage:
+  provider preset            list every preset
+  provider preset list       alias for the above
+  provider preset <name> [flags]
+
+Flags:
+      --name string                 display name
+      --type string                 provider type
+      --api-key string              API key
+      --base-url string             API base URL
+      --discover-models bool        auto-discover and merge provider models
+      --flat-rate bool              use flat-rate billing
+      --no-seed-models              drop the preset's built-in model list
+      --extra-header key value      add an HTTP header (repeatable)
+      --provider-options JSON       merge a provider-specific JSON object
+```
+
+```bash
+provider preset pollinations
+```
+
+Run `crush providers` to see the catalog, including each preset's note. From
+a `crushrc`, capture it with a command substitution:
+
+```bash
+echo "$(provider preset list)"
+```
+
+A preset writes an ordinary provider entry, so every field stays overridable
+and anything you set after it wins:
+
+```bash
+provider preset pollinations --base-url "http://localhost:8080/v1"
+```
+
+> [!IMPORTANT]
+> These providers are free, which means somebody else pays for the
+> inference — and sees whatever you send. Several log or train on requests.
+> A coding agent streams whatever the user reads into these endpoints, so
+> check the note in `crush providers` before pointing one at a real
+> codebase. The free tiers from established companies (Groq, Cerebras,
+> Chutes) ship in Crush's normal provider list and are a safer default.
 
 #### `provider remove`
 

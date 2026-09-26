@@ -229,6 +229,11 @@ That said, you can also set environment variables for preferred providers:
 | `AZURE_OPENAI_API_KEY`      | Azure OpenAI models (optional when using Entra ID) |
 | `AZURE_OPENAI_API_VERSION`  | Azure OpenAI models                                |
 | `MOONSHOT_API_KEY`          | Moonshot                                           |
+| `POLLINATIONS_API_KEY`      | Pollinations preset (free tier)                    |
+| `LOGFARE_API_KEY`           | Logfare preset (free, trains on requests)          |
+| `CRAX_API_KEY`              | crax-gpt preset (free, hobby service)              |
+| `NVIDIA_API_KEY`            | NVIDIA NIM preset (free tier)                      |
+| `GITHUB_TOKEN`              | GitHub Models preset (PAT with `models:read`)      |
 
 [hyper]: https://hyper.charm.land
 
@@ -744,6 +749,27 @@ Anthropic-compatible APIs.
 >
 > - `openai` should be used when proxying or routing requests through OpenAI.
 > - `openai-compat` should be used when using non-OpenAI providers that have OpenAI-compatible APIs.
+
+#### Presets
+
+For the common cases, Crush ships a catalog of ready-made providers. Run
+`crush providers` to see it, then apply one from your `crushrc`:
+
+```bash
+provider preset pollinations
+```
+
+A preset fills in the base URL, protocol, and API key variable, and registers
+the provider. Anything you set afterward wins, and `provider add` still works
+normally on top of it.
+
+> [!IMPORTANT]
+> Most of these are free, which means somebody else pays for the inference —
+> and sees whatever you send. Several log or train on requests, and one is a
+> single-operator hobby service that goes down. `crush providers` prints a note
+> per preset; read it before pointing a coding agent at a real codebase. The
+> free tiers from established companies (Groq, Cerebras, Chutes) ship in
+> Crush's normal provider list and are the safer default.
 
 #### OpenAI-Compatible APIs
 
