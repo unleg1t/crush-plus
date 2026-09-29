@@ -539,6 +539,13 @@ func (w *ClientWorkspace) WorkingDir() string {
 	return w.cached().Path
 }
 
+// GitBranch always returns an empty string. In client/server mode the
+// workspace may live on a remote machine, and the server does not currently
+// expose git metadata, so the branch cannot be resolved on the client side.
+func (w *ClientWorkspace) GitBranch() string {
+	return ""
+}
+
 func (w *ClientWorkspace) Resolver() config.VariableResolver {
 	return config.IdentityResolver()
 }
@@ -751,6 +758,26 @@ func (w *ClientWorkspace) EnableDockerMCP(ctx context.Context) error {
 
 func (w *ClientWorkspace) DisableDockerMCP() error {
 	return w.client.DisableDockerMCP(context.Background(), w.workspaceID())
+}
+
+func (w *ClientWorkspace) MCPServersDisabled(ctx context.Context) ([]string, error) {
+	return w.client.MCPServersDisabled(ctx, w.workspaceID())
+}
+
+func (w *ClientWorkspace) MCPServersEnabled(ctx context.Context) ([]string, error) {
+	return w.client.MCPServersEnabled(ctx, w.workspaceID())
+}
+
+func (w *ClientWorkspace) MCPSetServerDisabled(ctx context.Context, name string, disabled bool) error {
+	return w.client.SetMCPServerDisabled(ctx, w.workspaceID(), name, disabled)
+}
+
+func (w *ClientWorkspace) MCPSetServerConfigDisabled(ctx context.Context, name string, disabled bool) error {
+	return w.client.SetMCPServerConfigDisabled(ctx, w.workspaceID(), name, disabled)
+}
+
+func (w *ClientWorkspace) MCPStartServer(ctx context.Context, name string) error {
+	return w.client.StartMCPServer(ctx, w.workspaceID(), name)
 }
 
 func (w *ClientWorkspace) MCPAuthenticate(ctx context.Context, name string) error {
