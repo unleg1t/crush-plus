@@ -244,7 +244,7 @@ func TestLoadRefreshesGrokModelsWhenCatwalkUpdates(t *testing.T) {
 
 	fetched := stubGrokModels(t, []catwalk.Model{{ID: "grok-fresh", Name: "Grok Fresh"}})
 
-	store, err := Load(workDir, dataDir, false)
+	store, err := Load(t.Context(), workDir, dataDir, false)
 	require.NoError(t, err)
 
 	require.True(t, CatwalkUpdated(), "the stub served a fresh catalog")
@@ -278,7 +278,7 @@ func TestLoadKeepsGrokModelsWhenCatwalkNotModified(t *testing.T) {
 
 	fetched := stubGrokModels(t, []catwalk.Model{{ID: "grok-fresh", Name: "Grok Fresh"}})
 
-	store, err := Load(workDir, dataDir, false)
+	store, err := Load(t.Context(), workDir, dataDir, false)
 	require.NoError(t, err)
 
 	require.False(t, CatwalkUpdated(), "the stub reported the catalog unchanged")

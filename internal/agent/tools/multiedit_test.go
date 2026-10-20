@@ -17,10 +17,11 @@ import (
 
 type mockPermissionService struct {
 	*pubsub.Broker[permission.PermissionRequest]
+	deny bool
 }
 
 func (m *mockPermissionService) Request(ctx context.Context, req permission.CreatePermissionRequest) (bool, error) {
-	return true, nil
+	return !m.deny, nil
 }
 
 func (m *mockPermissionService) Grant(req permission.PermissionRequest) bool { return true }

@@ -100,8 +100,8 @@ You can use these modules directly in your flake by importing them from NUR. Sin
                   api_key = "sk-fake123456789abcdef...";
                   models = [
                     {
-                      id = "gpt-4";
-                      name = "GPT-4";
+                      id = "gpt-5.6-sol";
+                      name = "GPT-5.6 Sol";
                     }
                   ];
                 };
